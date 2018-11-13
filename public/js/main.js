@@ -1,8 +1,8 @@
 let socket = io();
-let formMessage = document.querySelector('#form-message');
+let formMessage = document.querySelector('#message-form');
 let inputField = document.querySelector('#input-message');
 let ul = document.querySelector('#message');
-let locationBtn = document.querySelector('#share-location');
+let locationBtn = document.querySelector('#send-location');
 
 socket.on('connect', () => {
   console.log('Connected to server');
@@ -16,7 +16,17 @@ socket.on('newMessage', message => {
   console.log('NewMessage', message);
   const formattedTime = moment(message.createdAt).format('h:mm a');
   let li = document.createElement('li');
-  li.textContent = `${message.from} ${formattedTime}: ${message.text}`;
+  li.className = 'message';
+
+  let mustacheMessage = document.querySelector('#message-mustache').innerHTML;
+
+  let html = Mustache.render(mustacheMessage, {
+    text: message.text,
+    from: message.from,
+    createdAt: formattedTime
+  });
+
+  li.innerHTML = html;
 
   ul.appendChild(li);
 });
@@ -25,12 +35,19 @@ socket.on('newMessage', message => {
 socket.on('newLocationMessage', message => {
   const formattedTime = moment(message.createdAt).format('h:mm a');
   let li = document.createElement('li');
-  let a = document.createElement('a');
-  a.textContent = 'My Current location';
-  li.textContent = `${message.from} ${formattedTime}:`;
-  a.setAttribute('href', message.url);
-  a.setAttribute('target', '_blank');
-  li.appendChild(a);
+  li.className = 'message';
+
+  let mustacheLocation = document.querySelector('#location-message-mustache')
+    .innerHTML;
+
+  let htmlLocation = Mustache.render(mustacheLocation, {
+    text: message.text,
+    from: message.from,
+    createdAt: formattedTime,
+    url: message.url
+  });
+
+  li.innerHTML = htmlLocation;
 
   ul.appendChild(li);
 });

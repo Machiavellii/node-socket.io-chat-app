@@ -17,7 +17,7 @@
       <ul id="message" class="chat__messages"></ul>
 
       <div class="chat__footer">
-        <form id="form-message">
+        <form id="message-form">
           <input
             type="text"
             name="message"
@@ -27,12 +27,31 @@
           />
           <button>Send</button>
         </form>
-        <button id="share-location">Share location</button>
+        <button id="send-location">Share location</button>
       </div>
     </div>
+    <script id="message-mustache" type="text/template">
+      <div class="message__title">
+        <h4>{{{from}}}</h4>
+        <span>{{{createdAt}}}</span>
+      </div>
+      <div class="message__body">
+        <p>{{{text}}}</p>
+      </div>
+    </script>
+    <script id="location-message-mustache" type="text/template">
+      <div class="message__title">
+        <h4>{{{from}}}</h4>
+        <span>{{{createdAt}}}</span>
+      </div>
+      <div class="message__body">
+        <a href="{{{url}}}" target='_blank'>My current location</a>
+      </div>
+    </script>
 
     <script src="socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.js"></script>
+    <script src="js/libs/mustache.js"></script>
     <script src="js/main.js"></script>
   </body>
 </html>
