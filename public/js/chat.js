@@ -4,12 +4,52 @@ let inputField = document.querySelector('#input-message');
 let ul = document.querySelector('#message');
 let locationBtn = document.querySelector('#send-location');
 
+//Autoscrolling
+function scrollToBottom() {
+  let clientHeight = ul.clientHeight;
+  let scrollTop = ul.scrollTop;
+  let scrollHeight = ul.scrollHeight;
+  let newMessage = ul.lastElementChild;
+  let newMessageHeight = newMessage.clientHeight;
+  // let lastMessageHeight = newMessage.previousSibling.clientHeight;
+
+  if (clientHeight + scrollTop + newMessageHeight >= scrollHeight) {
+    message.scrollTop = scrollHeight;
+  }
+}
+
 socket.on('connect', () => {
   console.log('Connected to server');
+  let query = queryString();
+
+  socket.emit('join', query, err => {
+    if (err) {
+      alert(err);
+      location.href = '/';
+    } else {
+      console.log('No Error');
+    }
+  });
 });
 
 socket.on('disconnect', () => {
   console.log('Disconnect from Server');
+});
+
+socket.on('updateUserList', users => {
+  console.log(users);
+  let ul = document.createElement('ul');
+
+  users.forEach(user => {
+    console.log(user);
+    let li = document.createElement('li');
+    li.textContent = user;
+    ul.appendChild(li);
+  });
+
+  let user = document.querySelector('#users');
+  user.innerHTML = '';
+  user.appendChild(ul);
 });
 
 socket.on('newMessage', message => {
@@ -29,6 +69,7 @@ socket.on('newMessage', message => {
   li.innerHTML = html;
 
   ul.appendChild(li);
+  scrollToBottom();
 });
 
 //Location
@@ -41,7 +82,6 @@ socket.on('newLocationMessage', message => {
     .innerHTML;
 
   let htmlLocation = Mustache.render(mustacheLocation, {
-    text: message.text,
     from: message.from,
     createdAt: formattedTime,
     url: message.url
@@ -50,6 +90,7 @@ socket.on('newLocationMessage', message => {
   li.innerHTML = htmlLocation;
 
   ul.appendChild(li);
+  scrollToBottom();
 });
 
 formMessage.addEventListener('submit', e => {
@@ -92,3 +133,19 @@ locationBtn.addEventListener('click', () => {
     }
   );
 });
+
+//Converting URL parameters to a JS object
+function queryString() {
+  let pairs = location.search.slice(1).split('&');
+
+  let result = {};
+
+  pairs.forEach(pair => {
+    pair = pair.split('=');
+    result[pair[0]] = decodeURIComponent(pair[1] || '');
+  });
+
+  return JSON.parse(JSON.stringify(result));
+}
+
+// console.log(query);
