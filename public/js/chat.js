@@ -99,7 +99,6 @@ formMessage.addEventListener('submit', e => {
   socket.emit(
     'createMessage',
     {
-      from: 'User',
       text: inputField.value
     },
     () => {
